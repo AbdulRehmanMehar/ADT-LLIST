@@ -1,3 +1,5 @@
+import java.io.Console;
+
 /**
    A class that implements the ADT list by using a chain of
    linked nodes that has a head reference.
@@ -9,6 +11,7 @@
 public class LList<T> implements ListInterface<T> {
 	private Node firstNode;            // Reference to first node of chain
 	private int  numberOfEntries;
+	private Node lastNode;
    
 	public LList() {
 		initializeDataFields();
@@ -42,19 +45,32 @@ public class LList<T> implements ListInterface<T> {
    public void add(T newEntry)
    {
 		Node newNode = new Node(newEntry);
-		if (isEmpty())
-			firstNode = newNode;
-		else // Add to end of nonempty list
+		if (isEmpty()) 
 		{
-			Node lastNode = getNodeAt(numberOfEntries);
-			lastNode.setNextNode(newNode); // Make last node reference new node
+			firstNode = newNode;
+			lastNode = firstNode;
+		}else // Add to end of nonempty list
+		{
+			// Node lastNode = getNodeAt(numberOfEntries);
+			// lastNode.setNextNode(newNode); // Make last node reference new node
+
+			lastNode.setNextNode(newNode);
+			newNode.setPrevNode(lastNode);
+			lastNode = newNode;
 		} // end if
 			numberOfEntries++;
 	} // end add
 
    public void add(int newPosition, T newEntry) {
 	   if ((newPosition >= 1) && (newPosition <= numberOfEntries + 1)) {
-	      Node newNode = new Node(newEntry);
+		  Node newNode = new Node(newEntry);
+		  
+		  if (newPosition == numberOfEntries + 1)                  // Case 1
+	      {
+			 lastNode.setNextNode(newNode);
+			 newNode.setPrevNode(lastNode);
+	         lastNode = newNode;
+	      } 
 	      if (newPosition == 1)                  // Case 1
 	      {
 	         newNode.setNextNode(firstNode);
@@ -106,12 +122,22 @@ public class LList<T> implements ListInterface<T> {
 	   T result = null;                           // Return value
 	   if ((givenPosition >= 1) && (givenPosition <= numberOfEntries))
 	   {
-	      assert !isEmpty();
-	      if (givenPosition == 1)                 // Case 1: Remove first entry
+		  assert !isEmpty();
+		  
+		  if (givenPosition == numberOfEntries)                 // Case 2: Remove last entry
+	      {
+			
+	         result = lastNode.getData();        // Save entry to be removed
+	         lastNode = lastNode.getprevNode(); // Remove entry
+		  } 
+		 
+		  if (givenPosition == 1)                 // Case 1: Remove first entry
 	      {
 	         result = firstNode.getData();        // Save entry to be removed
 	         firstNode = firstNode.getNextNode(); // Remove entry
 	      }
+		  
+		  
 	      else                                    // Case 2: Not first entry
 	      {
 	         Node nodeBefore = getNodeAt(givenPosition - 1);
@@ -179,10 +205,12 @@ public class LList<T> implements ListInterface<T> {
 	private class Node {
       private T    data; // Entry in list
       private Node next; // Link to next node
+      private Node prev; // Link to prev node
       
       private Node(T dataPortion) {
          data = dataPortion;
          next = null;
+         prev = null;
       } // end constructor
       
       private Node(T dataPortion, Node nextNode) {
@@ -201,10 +229,19 @@ public class LList<T> implements ListInterface<T> {
       private Node getNextNode() {
          return next;
       } // end getNextNode
-      
+	  
+	  
+	  private Node getprevNode() {
+		return prev;
+	 }
+
       private void setNextNode(Node nextNode) {
          next = nextNode;
-      } // end setNextNode
+	  } // end setNextNode
+	  
+	  private void setPrevNode(Node prev) {
+		this.prev = prev;
+	 } // end setNextNode
 	} // end Node
 
 } // end LList
